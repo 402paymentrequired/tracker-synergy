@@ -11,7 +11,7 @@ class tracker_base(threading.Thread):
     """
     """
 
-    def __init__(self, center, size, frame_lock):
+    def __init__(self, center, size, frame_lock, frames):
 
         """
         """
@@ -19,9 +19,7 @@ class tracker_base(threading.Thread):
 
         threading.Thread.__init__(self)
         self.frame_lock = frame_lock
-
-        self.current_frame = []
-        self.central_frame = []
+        self.ready_for_service = False
 
         self.center = center
         self.size = size
@@ -29,21 +27,14 @@ class tracker_base(threading.Thread):
 
         self.clock = pygame.Clock.clock()
 
-    def reinitialize(self, center, size, confidence):
-
-        """
-        """
-
-        self.center = center
-        self.size = size
-        self.confidence = confidence
-
-    def update(self):
+    def run(self):
 
         """
         """
 
         while(self.check_main_thread()):
+
+            self.ready_for_service = True
 
             # wait to be serviced by central thread
 
