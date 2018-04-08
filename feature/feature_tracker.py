@@ -2,22 +2,67 @@
 # feature identification based tracker
 
 import cv2
-# import numpy as np
+import numpy as np
 from matplotlib import pyplot as plt
 
 
-def getHueChannel(filename):
+def weighted_grayscale(image, weight):
 
-    image = cv2.cvtColor(cv2.imread(filename, 1), cv2.COLOR_BGR2HSV)
-    return(cv2.split(image)[0])
+    """
+    Get a weighted grayscale image.
+
+    Parameters
+    ----------
+    image : np.array
+        Input BGR image
+    weight : array
+        [B,G,R] weights
+
+    Returns
+    -------
+    np.array
+        Weighted grayscale image
+    """
+
+    weight = [x * 255 / max(weight) for x in weight]
+    split_image = cv2.split(image)
+    return(np.uint8(
+        split_image[0] * (weight[0] / 255.) / 3 +
+        split_image[1] * (weight[1] / 255.) / 3 +
+        split_image[2] * (weight[2] / 255.) / 3
+    ))
 
 
-def testFunc():
+def image_k_means(image, k):
 
-    # img_target = cv2.split(cv2.imread('target.jpg', mode))[color]
-    # img_scene = cv2.split(cv2.imread('scene.jpg', mode))[color]
-    img_target = getHueChannel("target.jpg")
-    img_scene = getHueChannel("scene.jpg")
+    """
+    Get dominant colors from a target image.
+
+    Parameters
+    ----------
+    image : np.array
+        Input BGR image
+    k : int
+        Number of colors to extract
+
+    Returns
+    -------
+    array
+        List of [B,G,R] tuples representing the K dominant colors.
+    """
+
+    array = np.copy(image).reshape((-1, 3))
+    array = np.float32(array)
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+    ret, label, center = cv2.kmeans(
+        array, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
+
+    center = np.uint8(center)
+
+    return(center)
+
+
+def test_func(img_target, img_scene):
 
     # Initiate SIFT detector
     sift = cv2.xfeatures2d.SIFT_create()
@@ -48,4 +93,17 @@ def testFunc():
         img_target, kp1, img_scene, kp2, matches, None, **draw_params)
     plt.imshow(img3, ), plt.show()
 
-testFunc()
+    for i in range(10):
+        print(matches[i][0].trainIdx)
+        print(matches[i][1].trainIdx)
+
+
+target = cv2.imread("target.jpg")
+scene = cv2.imread("scene.jpg")
+weights = image_k_means(target, 1)
+
+print(weights)
+test_func(
+    weighted_grayscale(target, weights[0]),
+    weighted_grayscale(scene, weights[0]))
+#test_func(cv2.imread("target.jpg", 0), cv2.imread("scene.jpg", 0))
