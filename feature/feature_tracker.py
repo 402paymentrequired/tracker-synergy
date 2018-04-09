@@ -115,7 +115,7 @@ def test_func(img_target, img_scene):
     output = []
     # ratio test as per Lowe's paper
     for i, (m, n) in enumerate(matches):
-        if m.distance < 0.8 * n.distance:
+        if m.distance < 0.9 * n.distance:
             matchesMask[i] = [1, 0]
             output.append([m, n])
 
@@ -137,8 +137,8 @@ def test_func(img_target, img_scene):
     return(match_vectors)
 
 
-target = cv2.imread("target2.jpg")
-scene = cv2.imread("scene2.jpg")
+target = cv2.imread("target2x0.5.jpg")
+scene = cv2.imread("scene-wide.jpg")
 weights = image_k_means(target, 1)
 
 print(weights)
