@@ -9,7 +9,7 @@ from cv_feature import weighted_grayscale, image_k_means, sift_scene
 
 if(__name__ == "__main__"):
     target = cv2.imread("reference/target2x0.5.jpg")
-    scene = cv2.imread("reference/scene2x0.125.jpg")
+    scene = cv2.imread("reference/scenex0.125.jpg")
     weights = image_k_means(target, 1)
 
     match_vectors = sift_scene(
@@ -41,7 +41,6 @@ if(__name__ == "__main__"):
 
     plt.hist(hist, bins=100, weights=w, range=[0, 5])
     plt.show()
-    plt.plot(
-        gaussian_convolve(
-            weighted_bin(0.01, hist, weights=w, epsilon=0.2), 10))
+    plt.plot(gaussian_convolve(
+        weighted_bin(0.01, hist, weights=w, epsilon=0.2), 20))
     plt.show()
