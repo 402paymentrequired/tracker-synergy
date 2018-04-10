@@ -1,5 +1,8 @@
+#
 # kernel_ops.py
+#
 # kernel operations for the feature matching algorithm
+#
 
 
 def weighted_stats(data):
